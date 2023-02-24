@@ -6,7 +6,6 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
-	"strings"
 )
 
 func loadEnv() {
@@ -18,10 +17,15 @@ func loadEnv() {
 	fmt.Println(".envを読み込みました。")
 }
 
+const (
+	TOKEN          = "TOKEN3"
+	APPLICATION_ID = "APPLICATION_ID3"
+)
+
 func main() {
 	loadEnv()
 	var (
-		Token = "Bot " + os.Getenv("TOKEN1")
+		Token = "Bot " + os.Getenv(TOKEN)
 		//BotName = "<@" + os.Getenv("APPLICATION_ID") + ">"
 		stopBot = make(chan bool)
 		//vcsession         *discordgo.VoiceConnection
@@ -54,13 +58,13 @@ func main() {
 }
 
 func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	clientID := os.Getenv("APPLICATION_ID1")
+	clientID := os.Getenv(APPLICATION_ID)
 	u := m.Author
 	fmt.Printf("ChannelID: %s, Username: %s(ID: %s) > Content: %s\n", m.ChannelID, u.Username, u.ID, m.Content)
 	if u.ID != clientID {
-		sendMessage(s, m.ChannelID, u.Mention()+"なんか喋った!")
-		sendReply(s, m.ChannelID, "test", m.Reference())
-		outputMessages(s, m)
+		//sendMessage(s, m.ChannelID, u.Mention()+"なんか喋った!")
+		//sendReply(s, m.ChannelID, "test", m.Reference())
+		//outputMessages(s, m)
 		newMessage(s, m)
 	}
 }
@@ -130,19 +134,51 @@ func newMessage(discord *discordgo.Session, message *discordgo.MessageCreate) {
 		return
 	}
 
-	// Respond to messages
-	switch {
-	case strings.Contains(message.Content, "weather"):
-		send, err := discord.ChannelMessageSend(message.ChannelID, "I can help with that!")
+	switch message.Content {
+	case "なにしてたの？":
+		send, err := discord.ChannelMessageSend(message.ChannelID, "ねてたぁ")
 		log.Println(send.Content)
 		if err != nil {
 			return
 		}
-	case strings.Contains(message.Content, "bot"):
-		send, err := discord.ChannelMessageSend(message.ChannelID, "Hi there!")
+	default:
+		send, err := discord.ChannelMessageSend(message.ChannelID, "しぬかぁ")
 		log.Println(send.Content)
 		if err != nil {
 			return
 		}
 	}
+	// Respond to messages
+	//switch {
+	//case strings.Contains(message.Content, "かんやのあほ"):
+	//	send, err := discord.ChannelMessageSend(message.ChannelID, "うるせぇ")
+	//	log.Println(send.Content)
+	//	if err != nil {
+	//		return
+	//	}
+	//case strings.Contains(message.Content, "サッカー好き？"):
+	//	send, err := discord.ChannelMessageSend(message.ChannelID, " 大好き！！！")
+	//	log.Println(send.Content)
+	//	if err != nil {
+	//		return
+	//	}
+	//case strings.Contains(message.Content, "ゆうみちゃん好き？"):
+	//	send, err := discord.ChannelMessageSend(message.ChannelID, " 愛してる！！！")
+	//	log.Println(send.Content)
+	//	if err != nil {
+	//		return
+	//	}
+	//case strings.Contains(message.Content, "かんや"):
+	//	send, err := discord.ChannelMessageSend(message.ChannelID, "なに？")
+	//	log.Println(send.Content)
+	//	if err != nil {
+	//		return
+	//	}
+	//case strings.Contains(message.Content, "かにゃ"):
+	//	send, err := discord.ChannelMessageSend(message.ChannelID, "はにゃ？")
+	//	log.Println(send.Content)
+	//	if err != nil {
+	//		return
+	//	}
+	//}
 }
