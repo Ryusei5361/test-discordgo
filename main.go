@@ -21,7 +21,7 @@ func loadEnv() {
 func main() {
 	loadEnv()
 	var (
-		Token = "Bot " + os.Getenv("TOKEN")
+		Token = "Bot " + os.Getenv("TOKEN1")
 		//BotName = "<@" + os.Getenv("APPLICATION_ID") + ">"
 		stopBot = make(chan bool)
 		//vcsession         *discordgo.VoiceConnection
@@ -54,7 +54,7 @@ func main() {
 }
 
 func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	clientId := os.Getenv("APPLICATION_ID")
+	clientId := os.Getenv("APPLICATION_ID1")
 	u := m.Author
 	fmt.Printf("ChannelID: %s, Username: %s(ID: %s) > Content: %s\n", m.ChannelID, u.Username, u.ID, m.Content)
 	if u.ID != clientId {
@@ -117,7 +117,7 @@ func outputMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// メッセージの一覧を出力
 	for _, msg := range messages {
-		fmt.Println(msg.Author)
+		fmt.Println(msg.Content)
 	}
 
 	log.Println("end")
