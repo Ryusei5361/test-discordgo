@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strings"
 )
 
 func loadEnv() {
@@ -60,6 +61,7 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		sendMessage(s, m.ChannelID, u.Mention()+"なんか喋った!")
 		sendReply(s, m.ChannelID, "test", m.Reference())
 		outputMessages(s, m)
+		newMessage(s, m)
 	}
 }
 
@@ -119,4 +121,28 @@ func outputMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	log.Println("end")
+}
+
+func newMessage(discord *discordgo.Session, message *discordgo.MessageCreate) {
+
+	// Ignore bot messaage
+	if message.Author.ID == discord.State.User.ID {
+		return
+	}
+
+	// Respond to messages
+	switch {
+	case strings.Contains(message.Content, "weather"):
+		send, err := discord.ChannelMessageSend(message.ChannelID, "I can help with that!")
+		log.Println(send.Content)
+		if err != nil {
+			return
+		}
+	case strings.Contains(message.Content, "bot"):
+		send, err := discord.ChannelMessageSend(message.ChannelID, "Hi there!")
+		log.Println(send.Content)
+		if err != nil {
+			return
+		}
+	}
 }
