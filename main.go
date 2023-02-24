@@ -54,10 +54,10 @@ func main() {
 }
 
 func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	clientId := os.Getenv("APPLICATION_ID1")
+	clientID := os.Getenv("APPLICATION_ID1")
 	u := m.Author
 	fmt.Printf("ChannelID: %s, Username: %s(ID: %s) > Content: %s\n", m.ChannelID, u.Username, u.ID, m.Content)
-	if u.ID != clientId {
+	if u.ID != clientID {
 		sendMessage(s, m.ChannelID, u.Mention()+"なんか喋った!")
 		sendReply(s, m.ChannelID, "test", m.Reference())
 		outputMessages(s, m)
