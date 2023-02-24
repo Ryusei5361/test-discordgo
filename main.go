@@ -59,8 +59,8 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if u.ID != clientId {
 		sendMessage(s, m.ChannelID, u.Mention()+"なんか喋った!")
 		sendReply(s, m.ChannelID, "test", m.Reference())
+		outputMessages(s, m)
 	}
-
 }
 
 func sendMessage(s *discordgo.Session, channelID string, msg string) {
@@ -78,7 +78,45 @@ func sendReply(s *discordgo.Session, channelID string, msg string, reference *di
 	}
 }
 
-// メッセージを受信した時の、声の初めと終わりにPrintされるようだ
-func onVoiceReceived(vc *discordgo.VoiceConnection, vs *discordgo.VoiceSpeakingUpdate) {
-	log.Print("しゃべったあああああ")
+func outputMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+	const limit = 100 // 上限の数を指定
+
+	var (
+		beforeID string
+		messages []*discordgo.Message
+	)
+
+	log.Println("start")
+
+	for {
+		c, err := s.ChannelMessages(
+			m.ChannelID, // channelID
+			limit,       // limit
+			beforeID,    // beforeID
+			"",          // afterID
+			"",          // aroundID
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		messages = append(messages, c...)
+
+		// limitで指定した件数と一致しない（それ以下）は終了
+		if len(c) != limit {
+			break
+		}
+
+		// 上限まで取得した場合は未取得のものがある可能性が残っているため、
+		// 取得した最後のメッセージIDをbeforeIDを設定
+		beforeID = c[len(c)-1].ID
+	}
+
+	// メッセージの一覧を出力
+	for _, msg := range messages {
+		fmt.Println(msg.Author)
+	}
+
+	log.Println("end")
 }
