@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strings"
 )
 
 func loadEnv() {
@@ -18,8 +19,8 @@ func loadEnv() {
 }
 
 const (
-	TOKEN          = "TOKEN3"
-	APPLICATION_ID = "APPLICATION_ID3"
+	TOKEN          = "TOKEN1"
+	APPLICATION_ID = "APPLICATION_ID1"
 )
 
 func main() {
@@ -44,17 +45,43 @@ func main() {
 		fmt.Println(err)
 	}
 
-	discord.AddHandler(onMessageCreate) //全てのWSAPIイベントが発生した時のイベントハンドラを追加
+	discord.AddHandler(onMessageUpdate) //全てのWSAPIイベントが発生した時のイベントハンドラを追加
 	// websocketを開いてlistening開始
 	err = discord.Open()
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer discord.Close()
+	defer func(discord *discordgo.Session) {
+		err := discord.Close()
+		if err != nil {
+
+		}
+	}(discord)
 
 	fmt.Println("Listening...")
 	<-stopBot //プログラムが終了しないようロック
 	return
+}
+
+func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
+	fmt.Println("<start>")
+	const limit = 1 // 上限の数を指定
+
+	c, err := s.ChannelMessages(
+		m.ChannelID, // channelID
+		limit,       // limit
+		"",          // beforeID
+		"",          // afterID
+		"",          // aroundID
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	content := strings.Split(c[0].Content, "\n")
+
+	fmt.Println(content[1])
+	fmt.Println("<end>")
 }
 
 func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -64,8 +91,8 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if u.ID != clientID {
 		//sendMessage(s, m.ChannelID, u.Mention()+"なんか喋った!")
 		//sendReply(s, m.ChannelID, "test", m.Reference())
-		//outputMessages(s, m)
-		newMessage(s, m)
+		outputMessages(s, m)
+		//newMessage(s, m)
 	}
 }
 
@@ -86,43 +113,59 @@ func sendReply(s *discordgo.Session, channelID string, msg string, reference *di
 
 func outputMessages(s *discordgo.Session, m *discordgo.MessageCreate) {
 
-	const limit = 100 // 上限の数を指定
+	const limit = 2 // 上限の数を指定
 
 	var (
 		beforeID string
-		messages []*discordgo.Message
+		//messages []*discordgo.Message
 	)
 
 	log.Println("start")
 
-	for {
-		c, err := s.ChannelMessages(
-			m.ChannelID, // channelID
-			limit,       // limit
-			beforeID,    // beforeID
-			"",          // afterID
-			"",          // aroundID
-		)
-		if err != nil {
-			log.Fatal(err)
-		}
+	//for {
+	//	c, err := s.ChannelMessages(
+	//		m.ChannelID, // channelID
+	//		limit,       // limit
+	//		beforeID,    // beforeID
+	//		"",          // afterID
+	//		"",          // aroundID
+	//	)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	messages = append(messages, c...)
+	//
+	//	// limitで指定した件数と一致しない（それ以下）は終了
+	//	if len(c) != limit {
+	//		break
+	//	}
+	//
+	//	// 上限まで取得した場合は未取得のものがある可能性が残っているため、
+	//	// 取得した最後のメッセージIDをbeforeIDを設定
+	//	beforeID = c[len(c)-1].ID
+	//}
+	//fmt.Println(m.Channel)
 
-		messages = append(messages, c...)
-
-		// limitで指定した件数と一致しない（それ以下）は終了
-		if len(c) != limit {
-			break
-		}
-
-		// 上限まで取得した場合は未取得のものがある可能性が残っているため、
-		// 取得した最後のメッセージIDをbeforeIDを設定
-		beforeID = c[len(c)-1].ID
+	c, err := s.ChannelMessages(
+		m.ChannelID, // channelID
+		limit,       // limit
+		beforeID,    // beforeID
+		"",          // afterID
+		"",          // aroundID
+	)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// メッセージの一覧を出力
-	for _, msg := range messages {
-		fmt.Println(msg.Content)
-	}
+	fmt.Println(c[0])
+
+	//messages = append(messages, c...)
+	//
+	//// メッセージの一覧を出力
+	//for _, msg := range messages {
+	//	fmt.Println(msg.Content)
+	//}
 
 	log.Println("end")
 }
