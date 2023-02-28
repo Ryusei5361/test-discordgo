@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -22,6 +23,12 @@ const (
 	TOKEN          = "TOKEN1"
 	APPLICATION_ID = "APPLICATION_ID1"
 )
+
+type stationInfo struct {
+	station string
+	price   int
+	count   int
+}
 
 func main() {
 	loadEnv()
@@ -78,9 +85,20 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 		log.Fatal(err)
 	}
 
-	content := strings.Split(c[0].Content, "\n")
+	contents := strings.Split(c[0].Content, "\n")
+	var contentInf []stationInfo
 
-	fmt.Println(content[1])
+	//fmt.Println(contentInf)
+
+	for i := range contents {
+		if i%3 != 0 {
+			content := strings.Fields(contents[i])
+			station := strings.Join(content[0:3], " ")
+			price, _ := strconv.Atoi(strings.Join(content[3:4], " "))
+			contentInf = append(contentInf, stationInfo{station: station, price: price})
+		}
+	}
+	fmt.Println(contentInf)
 	fmt.Println("<end>")
 }
 
