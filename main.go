@@ -24,8 +24,9 @@ const (
 )
 
 type stationInfo struct {
-	info  string
-	count int
+	station string
+	price   string
+	count   string
 }
 
 func main() {
@@ -84,29 +85,36 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	}
 
 	contents := strings.Split(c[0].Content, "\n")
-	var contentInfo []stationInfo
-	var content []string
+	//var contentInfo []stationInfo
+	contentInfo := make([]stationInfo, len(contents)*2/3)
+	//var content []string
+	//fmt.Println(len(contentInfo))
 
-	for i := range contents {
+	for i, content := range contents {
 		if i%3 != 0 {
-			content = append(content, contents[i])
-		}
-	}
-
-	for _, i := range content {
-		//fmt.Printf("i: %v\n", i)
-		for _, j := range contentInfo {
-			//fmt.Printf("j: %v\n", j)
-
-			if contains(i) {
-				//content := strings.Fields(content[i])
-				//station := strings.Join(content[0:3], " ")
-				//price, _ := strconv.Atoi(strings.Join(content[3:4], " "))
-				contentInfo = append(contentInfo, stationInfo{info: i})
-				break
+			//content := strings.Split(j, ":")
+			contentInfo, err = deleteStations(contentInfo, content)
+			if err != nil {
+				log.Fatal(err)
 			}
+			//contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1]})
 		}
 	}
+
+	//for _, i := range content {
+	//fmt.Printf("station: %s\n", station)
+	//for _, j := range contentInfo {
+	//fmt.Printf("j: %v\n", j)
+
+	//if contains(i) {
+	//	//content := strings.Fields(content[i])
+	//	//station := strings.Join(content[0:3], " ")
+	//	//price, _ := strconv.Atoi(strings.Join(content[3:4], " "))
+	//	contentInfo = append(contentInfo, stationInfo{info: i})
+	//	break
+	//}
+	//}
+	//}
 	fmt.Println(contentInfo)
 	fmt.Println("<end>")
 }
@@ -118,7 +126,7 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if u.ID != clientID {
 		//sendMessage(s, m.ChannelID, u.Mention()+"なんか喋った!")
 		//sendReply(s, m.ChannelID, "test", m.Reference())
-		outputMessages(s, m)
+		//outputMessages(s, m)
 		//newMessage(s, m)
 	}
 }
@@ -251,4 +259,21 @@ func newMessage(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	//		return
 	//	}
 	//}
+}
+
+func deleteStations(slice []stationInfo, s string) ([]stationInfo, error) {
+	ret := make([]stationInfo, len(slice))
+	content := strings.Split(s, ":")
+	i := 0
+	for _, x := range slice {
+		if x.station != content[0] {
+			//fmt.Printf("content: %s, station: %s", content[0], x.station)
+			ret[i] = x
+			i++
+		}
+	}
+	//if len(ret[:i]) == len(slice) {
+	//	return slice, fmt.Errorf("couldn't find")
+	//}
+	return ret[:i], nil
 }
