@@ -26,7 +26,7 @@ const (
 type stationInfo struct {
 	station string
 	price   string
-	count   string
+	count   int
 }
 
 func main() {
@@ -85,21 +85,30 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	}
 
 	contents := strings.Split(c[0].Content, "\n")
-	//var contentInfo []stationInfo
-	contentInfo := make([]stationInfo, len(contents)*2/3)
+	var contentInfo []stationInfo
+	//contentInfo := make([]stationInfo, len(contents)*2/3)
 	//var content []string
 	//fmt.Println(len(contentInfo))
 
 	for i, content := range contents {
 		if i%3 != 0 {
-			//content := strings.Split(j, ":")
-			contentInfo, err = deleteStations(contentInfo, content)
-			if err != nil {
-				log.Fatal(err)
-			}
-			//contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1]})
+			content := strings.Split(content, ":")
+			//contentInfo, err = deleteStations(contentInfo, content)
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+			contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1], count: 0})
 		}
 	}
+	contentInfo, err = countStations(contentInfo)
+
+	//for _, content := range contentInfo {
+	//	contentInfo, err = deleteStations(contentInfo, content.station)
+	//	//fmt.Println(contentInfo)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//}
 
 	//for _, i := range content {
 	//fmt.Printf("station: %s\n", station)
@@ -115,7 +124,7 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	//}
 	//}
 	//}
-	fmt.Println(contentInfo)
+	//fmt.Println(contentInfo)
 	fmt.Println("<end>")
 }
 
@@ -261,19 +270,41 @@ func newMessage(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	//}
 }
 
-func deleteStations(slice []stationInfo, s string) ([]stationInfo, error) {
+func countStations(slice []stationInfo) ([]stationInfo, error) {
+	cop := slice
 	ret := make([]stationInfo, len(slice))
-	content := strings.Split(s, ":")
-	i := 0
-	for _, x := range slice {
-		if x.station != content[0] {
-			//fmt.Printf("content: %s, station: %s", content[0], x.station)
-			ret[i] = x
-			i++
+
+	for i, x := range slice {
+		count := 0
+		for _, y := range cop {
+			if x.station == y.station && x.price == y.price {
+				//fmt.Printf("content: %s, station: %s", s, x.station)
+				//contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1]})
+				//cop = append(cop[:j], cop[j+1:]...)
+				count += 1
+				ret[i] = stationInfo{station: x.station, price: x.price, count: count}
+			}
 		}
+		//fmt.Println(i)
+		//fmt.Println(cop)
+		cop, _ = deleteStations(cop, x)
+		//fmt.Println(cop)
+		//fmt.Printf("ret: %v\n", ret)
 	}
 	//if len(ret[:i]) == len(slice) {
 	//	return slice, fmt.Errorf("couldn't find")
 	//}
+	return ret[:], nil
+}
+
+func deleteStations(slice []stationInfo, s stationInfo) ([]stationInfo, error) {
+	ret := make([]stationInfo, len(slice))
+	i := 0
+	for _, x := range slice {
+		if s.station != x.station || s.price != x.price {
+			ret[i] = x
+			i++
+		}
+	}
 	return ret[:i], nil
 }
