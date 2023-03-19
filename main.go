@@ -86,45 +86,16 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 
 	contents := strings.Split(c[0].Content, "\n")
 	var contentInfo []stationInfo
-	//contentInfo := make([]stationInfo, len(contents)*2/3)
-	//var content []string
-	//fmt.Println(len(contentInfo))
 
 	for i, content := range contents {
 		if i%3 != 0 {
 			content := strings.Split(content, ":")
-			//contentInfo, err = deleteStations(contentInfo, content)
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
 			contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1], count: 0})
 		}
 	}
-	contentInfo, err = countStations(contentInfo)
+	contentInfo = countStations(contentInfo)
 
-	//for _, content := range contentInfo {
-	//	contentInfo, err = deleteStations(contentInfo, content.station)
-	//	//fmt.Println(contentInfo)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//}
-
-	//for _, i := range content {
-	//fmt.Printf("station: %s\n", station)
-	//for _, j := range contentInfo {
-	//fmt.Printf("j: %v\n", j)
-
-	//if contains(i) {
-	//	//content := strings.Fields(content[i])
-	//	//station := strings.Join(content[0:3], " ")
-	//	//price, _ := strconv.Atoi(strings.Join(content[3:4], " "))
-	//	contentInfo = append(contentInfo, stationInfo{info: i})
-	//	break
-	//}
-	//}
-	//}
-	//fmt.Println(contentInfo)
+	fmt.Println(contentInfo)
 	fmt.Println("<end>")
 }
 
@@ -270,7 +241,7 @@ func newMessage(discord *discordgo.Session, message *discordgo.MessageCreate) {
 	//}
 }
 
-func countStations(slice []stationInfo) ([]stationInfo, error) {
+func countStations(slice []stationInfo) []stationInfo {
 	cop := slice
 	ret := make([]stationInfo, len(slice))
 
@@ -278,26 +249,16 @@ func countStations(slice []stationInfo) ([]stationInfo, error) {
 		count := 0
 		for _, y := range cop {
 			if x.station == y.station && x.price == y.price {
-				//fmt.Printf("content: %s, station: %s", s, x.station)
-				//contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1]})
-				//cop = append(cop[:j], cop[j+1:]...)
 				count += 1
 				ret[i] = stationInfo{station: x.station, price: x.price, count: count}
 			}
 		}
-		//fmt.Println(i)
-		//fmt.Println(cop)
-		cop, _ = deleteStations(cop, x)
-		//fmt.Println(cop)
-		//fmt.Printf("ret: %v\n", ret)
+		cop = deleteStations(cop, x)
 	}
-	//if len(ret[:i]) == len(slice) {
-	//	return slice, fmt.Errorf("couldn't find")
-	//}
-	return ret[:], nil
+	return ret[:]
 }
 
-func deleteStations(slice []stationInfo, s stationInfo) ([]stationInfo, error) {
+func deleteStations(slice []stationInfo, s stationInfo) []stationInfo {
 	ret := make([]stationInfo, len(slice))
 	i := 0
 	for _, x := range slice {
@@ -306,5 +267,5 @@ func deleteStations(slice []stationInfo, s stationInfo) ([]stationInfo, error) {
 			i++
 		}
 	}
-	return ret[:i], nil
+	return ret[:i]
 }
