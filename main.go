@@ -19,7 +19,7 @@ func loadEnv() {
 }
 
 const (
-	TOKEN          = "TOKEN1"
+	TOKEN          = "TOKEN1" // ボット トークンは、API リクエストを承認するために使用される
 	APPLICATION_ID = "APPLICATION_ID1"
 )
 
@@ -243,19 +243,21 @@ func newMessage(discord *discordgo.Session, message *discordgo.MessageCreate) {
 
 func countStations(slice []stationInfo) []stationInfo {
 	cop := slice
-	ret := make([]stationInfo, len(slice))
+	var ret []stationInfo
 
-	for i, x := range slice {
+	for _, x := range slice {
 		count := 0
 		for _, y := range cop {
 			if x.station == y.station && x.price == y.price {
 				count += 1
-				ret[i] = stationInfo{station: x.station, price: x.price, count: count}
 			}
+		}
+		if count != 0 {
+			ret = append(ret, stationInfo{station: x.station, price: x.price, count: count})
 		}
 		cop = deleteStations(cop, x)
 	}
-	return ret[:]
+	return ret
 }
 
 func deleteStations(slice []stationInfo, s stationInfo) []stationInfo {
