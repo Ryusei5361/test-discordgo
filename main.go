@@ -65,6 +65,7 @@ func main() {
 	}(discord)
 
 	fmt.Println("Listening...")
+
 	<-stopBot //プログラムが終了しないようロック
 	return
 }
@@ -96,7 +97,22 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	contentInfo = countStations(contentInfo)
 
 	fmt.Println(contentInfo)
+	f, err := os.Create("write.txt")
+	fmt.Println("test")
+	data := []byte("hello")
+	_, err = f.Write(data)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("fail to write file")
+	}
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+
+		}
+	}(f)
 	fmt.Println("<end>")
+
 }
 
 func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
