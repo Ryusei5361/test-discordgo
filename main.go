@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -65,7 +66,17 @@ func main() {
 	}(discord)
 
 	fmt.Println("Listening...")
-
+	f, err := os.Open("write.txt")
+	data := make([]byte, 1024)
+	read, err := f.Read(data)
+	//fmt.Printf("%s%s", "!!!!!!", string(data[:read]))
+	if err != nil {
+		return
+	}
+	for _, r := range string(data[:read]) {
+		fmt.Println("!!!!")
+		fmt.Println(r)
+	}
 	<-stopBot //プログラムが終了しないようロック
 	return
 }
@@ -86,31 +97,34 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	}
 
 	contents := strings.Split(c[0].Content, "\n")
-	var contentInfo []stationInfo
+	//var contentInfo []stationInfo
+	ca := make(map[string]int)
 
 	for i, content := range contents {
 		if i%3 != 0 {
 			content := strings.Split(content, ":")
-			contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1], count: 0})
+			ca[content[0]+content[1]]++
+			//contentInfo = append(contentInfo, stationInfo{station: content[0], price: content[1], count: 0})
 		}
 	}
-	contentInfo = countStations(contentInfo)
+	//contentInfo = countStations(contentInfo)
 
-	fmt.Println(contentInfo)
+	//fmt.Println(ca)
+
 	f, err := os.Create("write.txt")
-	fmt.Println("test")
-	data := []byte("hello")
-	_, err = f.Write(data)
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println("fail to write file")
-	}
-	defer func(f *os.File) {
-		err := f.Close()
+	for i, x := range ca {
+		data := []byte(i)
+		data = append(data, " "...)
+		data = append(data, i2s(x)...)
+		data = append(data, "\n"...)
+		_, err = f.Write(data)
 		if err != nil {
-
+			fmt.Println(err)
+			fmt.Println("fail to write file")
 		}
-	}(f)
+	}
+
+	defer f.Close()
 	fmt.Println("<end>")
 
 }
@@ -286,4 +300,18 @@ func deleteStations(slice []stationInfo, s stationInfo) []stationInfo {
 		}
 	}
 	return ret[:i]
+}
+
+// String -> Int
+func s2i(s string) int {
+	v, ok := strconv.Atoi(s)
+	if ok != nil {
+		panic("Faild : " + s + " can't convert to int")
+	}
+	return v
+}
+
+// Int -> String
+func i2s(i int) string {
+	return strconv.Itoa(i)
 }
