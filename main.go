@@ -66,24 +66,24 @@ func main() {
 	}(discord)
 
 	fmt.Println("Listening...")
-	f, err := os.Open("write.txt")
-	data := make([]byte, 1024)
-	read, err := f.Read(data)
+	//f, err := os.Open("write.txt")
+	//data := make([]byte, 1024)
+	//read, err := f.Read(data)
 	//fmt.Printf("%s%s", "!!!!!!", string(data[:read]))
-	if err != nil {
-		return
-	}
-	for _, r := range string(data[:read]) {
-		fmt.Println("!!!!")
-		fmt.Println(r)
-	}
+	//if err != nil {
+	//	return
+	//}
+	//for _, r := range string(data[:read]) {
+	//	fmt.Println("!!!!")
+	//	fmt.Println(r)
+	//}
 	<-stopBot //プログラムが終了しないようロック
 	return
 }
 
 func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	fmt.Println("<start>")
-	const limit = 1 // 上限の数を指定
+	const limit = 2 // 上限の数を指定
 
 	c, err := s.ChannelMessages(
 		m.ChannelID, // channelID
@@ -96,7 +96,7 @@ func onMessageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 		log.Fatal(err)
 	}
 
-	contents := strings.Split(c[0].Content, "\n")
+	contents := strings.Split(c[1].Content, "\n")
 	//var contentInfo []stationInfo
 	ca := make(map[string]int)
 
